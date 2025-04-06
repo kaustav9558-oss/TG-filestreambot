@@ -129,6 +129,7 @@ class DCConnectionManager:
 class ParallelTransferrer:
     log: logging.Logger = logging.getLogger(__name__)
     client: TelegramClient
+    lock: asyncio.Lock
 
     dc_managers: Dict[int, DCConnectionManager]
 
@@ -146,6 +147,7 @@ class ParallelTransferrer:
         }
         self.clean_timer = 30 * 60
         self.cached_file_ids: Dict[int, FileInfo] = {}
+        self.lock = asyncio.Lock()
         asyncio.create_task(self.clean_cache())
 
     async def get_file_properties(self, message_id: int) -> FileInfo:
@@ -182,8 +184,9 @@ class ParallelTransferrer:
         last_part: int, total_parts: int, index: int, ip: str) -> AsyncGenerator[bytes, None]:
         log = self.log
         try:
+            async with self.lock:
+                work_loads[index] += 1
             increment_counter(ip)
-            work_loads[index] += 1
             current_part = 1
             dcm = self.dc_managers[dc_id]
             async with dcm.get_connection() as conn:
@@ -211,7 +214,8 @@ class ParallelTransferrer:
             log.debug("Parallel download errored", exc_info=True)
         finally:
             logging.debug("Finished yielding file with %s parts.",current_part)
-            work_loads[index] -= 1
+            async with self.lock:
+                work_loads[index] -= 1
             decrement_counter(ip)
 
     def download(self, file_id: FileInfo, file_size: int, from_bytes: int, until_bytes: int, index: int, ip: str
