@@ -27,10 +27,9 @@ async def root_route_handler(_: web.Request):
             "telegram_bot": "@" + BotInfo.username,
             "connected_bots": len(multi_clients),
             "loads": dict(
-                ("bot" + str(c + 1), l)
-                for c, (_, l) in enumerate(
-                    sorted(work_loads.items(),
-                           key=lambda x: x[1], reverse=True)
+                (f"bot{c + 1}", l)
+                for c, l in (
+                    sorted(work_loads.items())
                 )
             ),
             "version": __version__,
