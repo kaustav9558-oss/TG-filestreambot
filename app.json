@@ -35,6 +35,11 @@
             "description": "A list of user IDs separated by comma (,). If this is set, only the users in this list will be able to use the bot.",
             "required": false
         },
+        "CACHE_SIZE": {
+            "description": "Maximum number of file info entries cached per client. Each client (including those using MULTI_TOKEN) gets its own separate cache of this size",
+            "value": 128,
+            "required": false
+        },   
         "CHUNK_SIZE": {
             "description": "Size of the chunk to request from Telegram server when streaming a file",
             "required": false

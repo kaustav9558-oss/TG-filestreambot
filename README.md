@@ -130,6 +130,8 @@ you may also add as many as bots you want. (max limit is not tested yet)
 > **Note**
 > Leave this field empty and anyone will be able to use your bot instance.
 
+`CACHE_SIZE` (default: 128) — Maximum number of file info entries cached per client. Each client (including those using MULTI_TOKEN) gets its own separate cache of this size
+
 `CHUNK_SIZE`: Size of the chunk to request from Telegram server when streaming a file [See more](https://core.telegram.org/api/files#downloading-files)
 
 `CONNECTION_LIMIT`:  (default 20) - The maximum number of connections to a single Telegram datacenter.
@@ -153,8 +155,6 @@ you may also add as many as bots you want. (max limit is not tested yet)
 `REQUEST_LIMIT`: (default 5) - The maximum number of requests a single IP can have active at a time
 
 `SLEEP_THRESHOLD` : Set a sleep threshold for flood wait exceptions happening globally in this telegram bot instance, below which any request that raises a flood wait will be automatically invoked again after sleeping for the required amount of time. Flood wait exceptions requiring higher waiting times will be raised. Defaults to 60 seconds.
-
-`STREAM_MEDIA`: (default false, can be either `True` or `False`) If you want to play the media (audio or video) in browser
 
 `TRUST_HEADERS`: (defaults to true) - Whether or not to trust X-Forwarded-For headers when logging requests.
 

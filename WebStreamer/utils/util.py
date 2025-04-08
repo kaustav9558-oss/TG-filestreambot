@@ -1,39 +1,28 @@
 # This file is a part of TG-FileStreamBot
 
-from __future__ import annotations
 import logging
-import sys
-import glob
-import importlib
+import importlib.util
 from collections import defaultdict
-from typing import Dict
 from pathlib import Path
 from aiohttp import web
 
 from telethon import TelegramClient
 from telethon.tl import functions
-from WebStreamer.vars import Var
+from ..vars import Var
 
-ongoing_requests: Dict[str, int] = defaultdict(lambda: 0)
+ongoing_requests: dict[str, int] = defaultdict(lambda: 0)
 
-PPATH = "WebStreamer/bot/plugins/*.py"
-files = glob.glob(PPATH)
+def load_plugins(folder_path: str):
+    folder = Path(folder_path)
+    package_prefix = ".".join(folder.parts)
+    for file in folder.glob("*.py"):
+        module_name = f"{package_prefix}.{file.stem}"
+        spec = importlib.util.spec_from_file_location(module_name, str(file))
+        module = importlib.util.module_from_spec(spec)
+        module.__package__ = package_prefix
+        spec.loader.exec_module(module)
+        logging.info("Imported %s", module_name)
 
-# https://github.com/EverythingSuckz/TG-FileStreamBot/blob/webui/WebStreamer/__main__.py
-
-def load_plugins(path: str):
-    for name in files:
-        with open(name, encoding="utf-8") as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"{path}/{plugin_name}.py")
-            import_path = f".plugins.{plugin_name}"
-            spec = importlib.util.spec_from_file_location(
-                import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules["WebStreamer.bot.plugins." + plugin_name] = load
-            logging.info("Imported => %s", plugin_name)
 
 def get_requester_ip(req: web.Request) -> str:
     if Var.TRUST_HEADERS:
@@ -55,7 +44,7 @@ def decrement_counter(ip: str) -> None:
     ongoing_requests[ip] -= 1
 
 
-# Moved from WebStreamer/utils/time_format.py
+# Moved from utils/time_format.py
 def get_readable_time(seconds: int) -> str:
     count = 0
     readable_time = ""

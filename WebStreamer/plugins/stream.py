@@ -1,12 +1,15 @@
 # This file is a part of TG-FileStreamBot
+# pylint: disable=relative-beyond-top-level
 
 import logging
 from telethon import Button, errors
 from telethon.events import NewMessage
 from telethon.extensions import html
-from WebStreamer.bot import StreamBot
-from WebStreamer.utils.file_properties import get_file_info, pack_file, get_short_hash
-from WebStreamer.vars import Var
+from ..clients import StreamBot
+from ..utils.file_properties import get_file_info, pack_file, get_short_hash
+from ..vars import Var
+
+MEDIA={"video", "audio"} # we can expand it to include more media types
 
 @StreamBot.on(NewMessage(func=lambda e: True if e.message.file and e.is_private else False))
 async def media_receive_handler(event: NewMessage.Event):
@@ -28,13 +31,16 @@ async def media_receive_handler(event: NewMessage.Event):
         )
         file_hash=get_short_hash(full_hash)
         stream_link = f"{Var.URL}stream/{log_msg.id}?hash={file_hash}"
-
+        is_media = bool(set(file_info.mime_type.split("/")) & MEDIA)
+        buttons=[[Button.url("Open", url=stream_link)]]
+        message=f"<code>{stream_link}</code>"
+        if is_media:
+            buttons.append([Button.url("Stream", url=stream_link+"&s=1")])
+            message+=f"<a href='{stream_link}&s=1'>(Stream)</a>"
         await event.message.reply(
-            message=f"<code>{stream_link}</code>",
+            message=message,
             link_preview=False,
-            buttons=[
-            [Button.url("Open", url=stream_link)]
-            ],
+            buttons=buttons,
             parse_mode=html
         )
     except errors.FloodWaitError as e:

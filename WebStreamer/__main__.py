@@ -6,15 +6,12 @@ import traceback
 import logging
 import logging.handlers as handlers
 
-
 from aiohttp import web
-from WebStreamer.bot import StreamBot, BotInfo
-from WebStreamer.server import web_server
-from WebStreamer.utils.keepalive import ping_server
-from WebStreamer.utils.util import load_plugins, startup
-from WebStreamer.bot.clients import initialize_clients
+from .stream_routes import routes
+from .utils.keepalive import ping_server
+from .utils.util import load_plugins, startup
+from .clients import StreamBot, initialize_clients
 from .vars import Var
-
 
 logging.basicConfig(
     level=logging.DEBUG if Var.DEBUG else logging.INFO,
@@ -27,13 +24,9 @@ logging.getLogger("aiohttp").setLevel(logging.DEBUG if Var.DEBUG else logging.ER
 logging.getLogger("aiohttp.web").setLevel(logging.DEBUG if Var.DEBUG else logging.ERROR)
 logging.getLogger("telethon").setLevel(logging.INFO if Var.DEBUG else logging.ERROR)
 
-server = web.AppRunner(web_server())
-
-#if sys.version_info[1] > 9:
-#    loop = asyncio.new_event_loop()
-#    asyncio.set_event_loop(loop)
-#else:
-loop = asyncio.get_event_loop()
+app = web.Application(client_max_size=1024*8) # 8KB
+app.add_routes(routes)
+server = web.AppRunner(app)
 
 async def start_services():
     logging.info("Initializing Telegram Bot")
@@ -45,8 +38,8 @@ async def start_services():
         logging.error("Bin Channel not found. Please ensure the bot has been added to the bin channel.")
         return
     bot_info = await StreamBot.get_me()
-    BotInfo.username = bot_info.username
-    BotInfo.fname=bot_info.first_name
+    Var.USERNAME = bot_info.username
+    Var.FIRST_NAME=bot_info.first_name
     logging.info("Initialized Telegram Bot")
     logging.info("Initializing Clients")
     await initialize_clients()
@@ -58,7 +51,7 @@ async def start_services():
             logging.warning("Bin Channel is a group. Use a channel for multi-client support.")
     if not Var.NO_UPDATE:
         logging.info('Importing plugins')
-        load_plugins("WebStreamer/bot/plugins")
+        load_plugins("WebStreamer/plugins")
         logging.info("Imported Plugins")
     if Var.KEEP_ALIVE:
         logging.info("Starting Keep Alive Service")
@@ -67,10 +60,17 @@ async def start_services():
     await server.setup()
     await web.TCPSite(server, Var.BIND_ADDRESS, Var.PORT).start()
     logging.info("Service Started")
-    logging.info("bot =>> %s", BotInfo.fname)
+    logging.info("bot =>> %s", Var.FIRST_NAME)
     logging.info("DC ID =>> %s", str(StreamBot.session.dc_id))
     logging.info(" URL =>> %s", Var.URL)
     await StreamBot.run_until_disconnected()
+
+async def main():
+    try:
+        await start_services()
+    finally:
+        await cleanup()
+        logging.info("Stopped Services")
 
 async def cleanup():
     await server.cleanup()
@@ -78,12 +78,8 @@ async def cleanup():
 
 if __name__ == "__main__":
     try:
-        loop.run_until_complete(start_services())
+        asyncio.run(main())
     except KeyboardInterrupt:
         pass
-    except Exception as err:
+    except Exception:
         logging.error(traceback.format_exc())
-    finally:
-        loop.run_until_complete(cleanup())
-        loop.stop()
-        logging.info("Stopped Services")

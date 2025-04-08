@@ -6,13 +6,12 @@ import logging
 import mimetypes
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
-from WebStreamer.bot import multi_clients, work_loads, BotInfo
-from WebStreamer.utils.file_properties import get_short_hash, pack_file
-from WebStreamer.utils.util import allow_request, get_requester_ip, get_readable_time
-from WebStreamer.vars import Var
-from WebStreamer.server.exceptions import FIleNotFound, InvalidHash
-from WebStreamer import StartTime, __version__
-from WebStreamer.utils.paralleltransfer import ParallelTransferrer
+from .clients import multi_clients, work_loads
+from .utils.file_properties import get_short_hash, pack_file
+from .utils.util import allow_request, get_requester_ip, get_readable_time
+from .vars import Var
+from . import StartTime, __version__
+from .utils.paralleltransfer import ParallelTransferrer
 
 
 routes = web.RouteTableDef()
@@ -24,7 +23,7 @@ async def root_route_handler(_: web.Request):
         {
             "server_status": "running",
             "uptime": get_readable_time(time.time() - StartTime),
-            "telegram_bot": "@" + BotInfo.username,
+            "telegram_bot": "@" + Var.USERNAME,
             "connected_bots": len(multi_clients),
             "loads": dict(
                 (f"bot{c + 1}", l)
@@ -43,10 +42,6 @@ async def stream_handler(request: web.Request):
         message_id = int(request.match_info["messageID"])
         secure_hash = request.rel_url.query.get("hash")
         return await media_streamer(request, message_id, secure_hash)
-    except InvalidHash as e:
-        raise web.HTTPForbidden(text=e.message)
-    except FIleNotFound as e:
-        raise web.HTTPNotFound(text=e.message)
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
     except Exception as e:
@@ -75,9 +70,8 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
         class_cache[faster_client] = transfer
         logging.debug("Created new ByteStreamer object for client %s", index)
     logging.debug("before calling get_file_properties")
-    try:
-        file_id = await transfer.get_file_properties(message_id)
-    except FIleNotFound:
+    file_id = await transfer.get_file_properties(message_id)
+    if not file_id:
         return web.Response(status=404, text="File not found")
 
     full_hash = pack_file(
@@ -88,7 +82,7 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
     )
     if get_short_hash(full_hash) != secure_hash:
         logging.debug("Invalid hash for message with ID %s", message_id)
-        raise InvalidHash
+        return web.HTTPForbidden(text="Invalid hash")
 
     file_size = file_id.file_size
 
@@ -125,7 +119,7 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
         mime_type = mimetypes.guess_type(
             file_name)[0] or "application/octet-stream"
 
-    if ("video/" in mime_type or "audio/" in mime_type) and Var.STREAM_MEDIA:
+    if request.rel_url.query.get("s"):
         disposition = "inline"
 
     return web.Response(

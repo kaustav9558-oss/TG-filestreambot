@@ -6,10 +6,19 @@ import logging
 from os import environ
 from telethon import TelegramClient
 from telethon.sessions import MemorySession
-from WebStreamer.utils.util import startup
-from ..vars import Var
-from . import multi_clients, work_loads, StreamBot
+from .utils.util import startup
+from .vars import Var
 
+multi_clients: dict[int, TelegramClient] = {}
+work_loads: dict[int, int] = {}
+
+StreamBot = TelegramClient(
+    session="WebStreamer",
+    api_id=Var.API_ID,
+    api_hash=Var.API_HASH,
+    flood_sleep_threshold=Var.SLEEP_THRESHOLD,
+    receive_updates=not Var.NO_UPDATE
+)
 
 async def initialize_clients():
     multi_clients[0] = StreamBot
@@ -51,7 +60,7 @@ async def initialize_clients():
             logging.error("Failed starting Client - %s Error:", client_id, exc_info=True)
 
     clients = await asyncio.gather(*[start_client(i, token) for i, token in all_tokens.items()])
-    multi_clients.update(dict(clients))
+    multi_clients.update(dict(filter(None,clients)))
     if len(multi_clients) != 1:
         Var.MULTI_CLIENT = True
         logging.info("Multi-client mode enabled")

@@ -14,8 +14,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Modifications made by Deekshith SH, 2024-2025
+# Copyright (C) 2024-2025 Deekshith SH
+
+# pylint: disable=protected-access
+from collections import OrderedDict
 import copy
-from typing import AsyncGenerator, Dict, Optional, List
+from typing import AsyncGenerator, Optional
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 import logging
@@ -32,10 +38,10 @@ from telethon.tl.alltlobjects import LAYER
 from telethon.tl.types import DcOption
 from telethon.errors import DcIdInvalidError
 
-from WebStreamer.utils.util import decrement_counter, increment_counter
-from WebStreamer.utils.file_properties import FileInfo, get_file_ids
-from WebStreamer.vars import Var
-from WebStreamer.bot import work_loads
+from ..utils.util import decrement_counter, increment_counter
+from ..utils.file_properties import FileInfo, get_file_ids
+from ..vars import Var
+from ..clients import work_loads
 
 root_log = logging.getLogger(__name__)
 
@@ -59,7 +65,7 @@ class DCConnectionManager:
     dc_id: int
     dc: Optional[DcOption]
     auth_key: Optional[AuthKey]
-    connections: List[Connection]
+    connections: list[Connection]
 
     _list_lock: asyncio.Lock
 
@@ -81,9 +87,10 @@ class DCConnectionManager:
         self.connections.append(conn)
         async with conn.lock:
             conn.log.info("Connecting...")
-            connection_info = self.client._connection(self.dc.ip_address, self.dc.port, self.dc.id,
-                                                      loggers=self.client._log,
-                                                      proxy=self.client._proxy)
+            connection_info = self.client._connection(
+                self.dc.ip_address, self.dc.port, self.dc.id,
+                loggers=self.client._log,
+                proxy=self.client._proxy)
             await sender.connect(connection_info)
             if not self.auth_key:
                 await self._export_auth_key(conn)
@@ -130,14 +137,12 @@ class ParallelTransferrer:
     log: logging.Logger = logging.getLogger(__name__)
     client: TelegramClient
     lock: asyncio.Lock
+    cached_files: OrderedDict[int, asyncio.Task]
 
-    dc_managers: Dict[int, DCConnectionManager]
-
-    _counter: int
+    dc_managers: dict[int, DCConnectionManager]
 
     def __init__(self, client: TelegramClient) -> None:
         self.client = client
-        self._counter = 0
         self.dc_managers = {
             1: DCConnectionManager(client, 1),
             2: DCConnectionManager(client, 2),
@@ -145,39 +150,26 @@ class ParallelTransferrer:
             4: DCConnectionManager(client, 4),
             5: DCConnectionManager(client, 5),
         }
-        self.clean_timer = 30 * 60
-        self.cached_file_ids: Dict[int, FileInfo] = {}
+        self.cached_files = OrderedDict()
         self.lock = asyncio.Lock()
-        asyncio.create_task(self.clean_cache())
 
-    async def get_file_properties(self, message_id: int) -> FileInfo:
-        """
-        Returns the properties of a media of a specific message in a FileInfo class.
-        if the properties are cached, then it'll return the cached results.
-        or it'll generate the properties from the Message ID and cache them.
-        """
-        if message_id not in self.cached_file_ids:
-            await self.generate_file_properties(message_id)
-            logging.debug("Cached file properties for message with ID %s", message_id)
-        return self.cached_file_ids[message_id]
-
-    async def generate_file_properties(self, message_id: int) -> FileInfo:
-        """
-        Generates the properties of a media file on a specific message.
-        returns ths properties in a FileInfo class.
-        """
-        file_id = await get_file_ids(self.client, Var.BIN_CHANNEL, message_id)
+    async def get_file_properties(self, message_id: int) -> Optional[FileInfo]:
+        if message_id in self.cached_files:
+            return await asyncio.shield(self.cached_files[message_id])
+        task=asyncio.create_task(get_file_ids(self.client, Var.BIN_CHANNEL, message_id))
+        if Var.CACHE_SIZE is not None and len(self.cached_files) > Var.CACHE_SIZE:
+            self.cached_files.popitem(last=False)
+        self.cached_files[message_id]=task
+        file_id=await asyncio.shield(task)
+        if not file_id:
+            self.cached_files.pop(message_id)
+            logging.debug("File not found for message with ID %s", message_id)
+            return None
         logging.debug("Generated file ID for message with ID %s", message_id)
-        self.cached_file_ids[message_id] = file_id
-        logging.debug("Cached media message with ID %s", message_id)
+        return file_id
 
     def post_init(self) -> None:
         self.dc_managers[self.client.session.dc_id].auth_key = self.client.session.auth_key
-
-    @property
-    def next_index(self) -> int:
-        self._counter += 1
-        return self._counter
 
     async def _int_download(self, request: GetFileRequest, dc_id: int,first_part_cut: int,
         last_part_cut: int, part_count: int, chunk_size: int,
@@ -186,7 +178,7 @@ class ParallelTransferrer:
         try:
             async with self.lock:
                 work_loads[index] += 1
-            increment_counter(ip)
+                increment_counter(ip)
             current_part = 1
             dcm = self.dc_managers[dc_id]
             async with dcm.get_connection() as conn:
@@ -213,10 +205,10 @@ class ParallelTransferrer:
         except Exception:
             log.debug("Parallel download errored", exc_info=True)
         finally:
-            logging.debug("Finished yielding file with %s parts.",current_part)
             async with self.lock:
                 work_loads[index] -= 1
-            decrement_counter(ip)
+                decrement_counter(ip)
+            logging.debug("Finished yielding file with %s parts.",current_part)
 
     def download(self, file_id: FileInfo, file_size: int, from_bytes: int, until_bytes: int, index: int, ip: str
         ) -> AsyncGenerator[bytes, None]:
@@ -239,11 +231,3 @@ class ParallelTransferrer:
         return self._int_download(request, dc_id, first_part_cut, last_part_cut,
             part_count, chunk_size, last_part, total_parts, index, ip)
 
-    async def clean_cache(self) -> None:
-        """
-        function to clean the cache to reduce memory usage
-        """
-        while True:
-            await asyncio.sleep(self.clean_timer)
-            self.cached_file_ids.clear()
-            logging.debug("Cleaned the cache")
