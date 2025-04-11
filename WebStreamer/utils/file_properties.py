@@ -47,8 +47,8 @@ def get_file_info(message: Message) -> FileInfo:
     return FileInfo(
         message.file.size,
         message.file.mime_type,
-        getattr(message.file, "name", ""),
-        media.document.id or media.photo.id or 0,
+        getattr(message.file, "name", None) or "",
+        getattr(media, "document.id", 0) or getattr(media, "photo.id", 0),
         *get_input_location(message.media)
     )
 
