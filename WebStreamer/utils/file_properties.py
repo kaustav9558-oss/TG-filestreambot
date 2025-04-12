@@ -44,12 +44,13 @@ async def get_file_ids(client: TelegramClient, chat_id: int, message_id: int) ->
 
 def get_file_info(message: Message) -> FileInfo:
     media: Union[types.MessageMediaDocument, types.MessageMediaPhoto] = message.media
+    file = getattr(media, "document", None) or getattr(media, "photo", None)
     return FileInfo(
         message.file.size,
         message.file.mime_type,
         getattr(message.file, "name", None) or "",
-        getattr(media, "document.id", 0) or getattr(media, "photo.id", 0),
-        *get_input_location(message.media)
+        file.id,
+        *get_input_location(media)
     )
 
 def pack_file(file_name: str, file_size: int, mime_type: str, file_id: int) -> str:
