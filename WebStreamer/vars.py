@@ -18,8 +18,9 @@ class Var(object):
     )  # you NEED to use a CHANNEL when you're using MULTI_CLIENT
     BOT_TOKEN = str(environ.get("BOT_TOKEN"))
 
-    ALLOWED_USERS = [x.strip("@ ") for x in str(environ.get("ALLOWED_USERS", "") or "").split(",") if x.strip("@ ")]
+    ALLOWED_USERS = [int(x.strip()) for x in environ.get("ALLOWED_USERS", "").split(",") if x.strip()]
     BIND_ADDRESS = str(environ.get("WEB_SERVER_BIND_ADDRESS", "0.0.0.0"))
+    BLOCKED_USERS = [int(x.strip()) for x in environ.get("BLOCKED_USERS", "").split(",") if x.strip()]
     CACHE_SIZE: int = int(environ.get("CACHE_SIZE", 128))
     CHUNK_SIZE: int = int(environ.get("CHUNK_SIZE", 1024 * 1024)) #bytes
     CONNECTION_LIMIT = int(environ.get("CONNECTION_LIMIT", 20))

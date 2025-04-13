@@ -10,7 +10,8 @@ from ..vars import Var
 @StreamBot.on(NewMessage(incoming=True,pattern=r"^\/start*", func=lambda e: e.is_private))
 async def start(event: NewMessage.Event):
     user = await event.get_sender()
-    if Var.ALLOWED_USERS and not ((str(user.id) in Var.ALLOWED_USERS) or (user.username in Var.ALLOWED_USERS)):
+    if (Var.ALLOWED_USERS and user.id not in Var.ALLOWED_USERS) or (
+        Var.BLOCKED_USERS and user.id in Var.BLOCKED_USERS):
         return await event.message.reply(
             message="You are not in the allowed list of users who can use me.",
             link_preview=False,

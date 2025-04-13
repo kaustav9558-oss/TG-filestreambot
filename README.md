@@ -1,13 +1,7 @@
 # Telegram File Stream Bot
 This bot will give you stream links for Telegram files without waiting for them to download.
 
----
-
-[Demo Bot »](https://telegram.dog/DirectLinkGenerator_Bot)  
-[Report a Bug](https://github.com/DeekshithSH/FileStreamBot/issues) |
-[Request Feature](https://github.com/DeekshithSH/FileStreamBot/issues)
-
----
+~~[Demo Bot](https://telegram.dog/DirectLinkGenerator_Bot) based on this repo~~
 
 ### Original Repository
 [TG-FileStreamBot](https://github.com/SpringsFern/TG-FileStreamBot) is a modified version of [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot) by [EverythingSuckz](https://github.com/EverythingSuckz)
@@ -15,75 +9,24 @@ This bot will give you stream links for Telegram files without waiting for them 
 The main logic was taken from [Tulir Asokan](https://github.com/tulir)'s [tg filestream](https://github.com/tulir/TGFileStream) project.
 
 ## How to make your own
-
-<details>
-<summary>[Show Me More 🔽]</summary>
-
-### 🚀 Deploy on Heroku
-
-[![Deploy To Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Then go to the [variables tab](#environment-variables) for info on setting up environment variables.
-
-
-
-### 🖥 Host on VPS / Locally
-
-```sh
-git clone https://github.com/SpringsFern/TG-FileStreamBot
-cd TG-FileStreamBot
-python3 -m venv ./venv
-. ./venv/bin/activate
-pip3 install -r requirements.txt
-python3 -m WebStreamer
-```
-
-To stop the bot, press <kbd>CTRL</kbd>+<kbd>C</kbd>
-
-To keep it running 24/7 on VPS:
-
-```sh
-sudo apt install tmux -y
-tmux
-python3 -m WebStreamer
-```
-
-You can now close the terminal and the bot will keep running.
-
-</details>
+[Click here installation page](/docs/INSTALL.md)
 
 ## Environment Variables
-
-<details>
-<summary>[Show Me More 🔽]</summary>
-
-If you're on Heroku, add these as Config Vars.  
-If hosting locally, create a `.env` file in the root directory and add them there.
-
----
-
 ### 🔒 Mandatory
-
-<details>
-<summary>[Show Me More 🔽]</summary>
 
 - `API_ID` : Goto [my.telegram.org](https://my.telegram.org) to obtain this.
 - `API_HASH` : Goto [my.telegram.org](https://my.telegram.org) to obtain this.
 - `BOT_TOKEN` : Get the bot token from [@BotFather](https://telegram.dog/BotFather)
 - `BIN_CHANNEL` : Create a new channel (private/public), post something in your channel. Forward that post to [@missrose_bot](https://telegram.dog/MissRose_bot) and **reply** `/id`. Now copy paste the forwarded channel ID in this field. 
 
-</details>
-
----
-
 ### 🧩 Optional
 
-<details>
-<summary>[Show Me More 🔽]</summary>
-
 - `ALLOWED_USERS`:  A list of user IDs separated by comma (,). If this is set, only the users in this list will be able to use the bot.
-> **Note**
-> Leave this field empty and anyone will be able to use your bot instance.
+    > **Note**
+    > Leave this field empty and anyone will be able to use your bot instance.
+- `BLOCKED_USERS`:  A list of user IDs separated by commas (,). If this is set, the users in this list will be prevented from using the bot.
+    > **Note**
+    > User IDs in this field take precedence. Even if a user is in ALLOWED_USERS, they will be blocked if they are listed here
 - `CACHE_SIZE` (default: 128) — Maximum number of file info entries cached per client. Each client (including those using MULTI_TOKEN) gets its own separate cache of this size
 - `CHUNK_SIZE`: Size of the chunk to request from Telegram server when streaming a file [See more](https://core.telegram.org/api/files#downloading-files)
 - `CONNECTION_LIMIT`:  (default 20) - The maximum number of connections to a single Telegram datacenter.
@@ -100,45 +43,31 @@ If hosting locally, create a `.env` file in the root directory and add them ther
 - `TRUST_HEADERS`: (defaults to true) - Whether or not to trust X-Forwarded-For headers when logging requests.
 - `WEB_SERVER_BIND_ADDRESS` : Your server bind address. Defauls to `0.0.0.0`
 
-</details>
-
----
-
 ### 🤖 Multi-Client Tokens
 
-<details>
-<summary>[Show Me More 🔽]</summary>
+To enable multi-client, generate new bot tokens and add it as your environmental variables with the following key names. 
 
-Use for adding multiple bots:
-- `MULTI_TOKEN1`
-- `MULTI_TOKEN2`
-- `MULTI_TOKEN3`, etc.
+`MULTI_TOKEN1`: Add your first bot token here.
 
-</details>
+`MULTI_TOKEN2`: Add your second bot token here.
 
-</details>
+you may also add as many as bots you want. (max limit is not tested yet)
+`MULTI_TOKEN3`, `MULTI_TOKEN4`, etc.
+
+> **Warning**
+> Don't forget to add all these bots to the `BIN_CHANNEL` for the proper functioning
 
 ## How to use the bot
-
-<details>
-<summary>[Show Me More 🔽]</summary>
 
 :warning: Make sure all bots are added to the `BIN_CHANNEL` as **admins**.
 
 - `/start` — Check if the bot is alive  
 - Forward any media to get an instant stream link.
 
-</details>
-
 ## FAQ
-
-<details>
-<summary>[Show Me More 🔽]</summary>
 
 **Q: Do the stream links expire?**  
 A: They are valid as long as your bot is alive and the log channel isn’t deleted.
-
-</details>
 
 ## Contributing
 

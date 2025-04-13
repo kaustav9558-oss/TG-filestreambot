@@ -14,7 +14,8 @@ MEDIA={"video", "audio"} # we can expand it to include more media types
 @StreamBot.on(NewMessage(func=lambda e: True if e.message.file and e.is_private else False))
 async def media_receive_handler(event: NewMessage.Event):
     user = await event.get_sender()
-    if Var.ALLOWED_USERS and not ((str(user.id) in Var.ALLOWED_USERS) or (user.username in Var.ALLOWED_USERS)):
+    if (Var.ALLOWED_USERS and user.id not in Var.ALLOWED_USERS) or (
+        Var.BLOCKED_USERS and user.id in Var.BLOCKED_USERS):
         return await event.message.reply(
             message="You are not in the allowed list of users who can use me.",
             link_preview=False,
