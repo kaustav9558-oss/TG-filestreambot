@@ -131,5 +131,6 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
             "Content-Length": str(req_length),
             "Content-Disposition": f'{disposition}; filename="{file_name}"',
             "Accept-Ranges": "bytes",
+            "X-Upload-Date": file_id.upload_date.strftime("%a, %d %b %Y %H:%M:%S GMT"),  # Custom header for upload date
         },
     )

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 import hashlib
 from typing import Optional, Union
+from datetime import datetime
 from telethon import TelegramClient
 from telethon.utils import get_input_location
 from telethon.tl import types
@@ -11,11 +12,12 @@ from ..vars import Var
 
 @dataclass
 class FileInfo:
-    __slots__ = ("file_size", "mime_type", "file_name", "id", "dc_id", "location")
+    __slots__ = ("file_size", "mime_type", "file_name", "upload_date", "id", "dc_id", "location")
 
     file_size: int
     mime_type: str
     file_name: str
+    upload_date: datetime
     id: int
     dc_id: int
     location: Union[types.InputPhotoFileLocation, types.InputDocumentFileLocation]
@@ -48,6 +50,7 @@ def get_file_info(message: Message) -> FileInfo:
     return FileInfo(
         message.file.size,
         message.file.mime_type,
+        message.date,
         getattr(message.file, "name", None) or "",
         file.id,
         *get_input_location(media)
