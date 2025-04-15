@@ -5,6 +5,7 @@ from telethon.extensions import html
 from telethon.events import NewMessage
 from .. import __version__
 from ..clients import StreamBot
+from ..utils.greetings import greeting
 from ..vars import Var
 
 @StreamBot.on(NewMessage(incoming=True,pattern=r"^\/start*", func=lambda e: e.is_private))
@@ -18,7 +19,7 @@ async def start(event: NewMessage.Event):
             parse_mode=html
         )
     await event.message.reply(
-        message=f'Hi <a href="tg://user?id={user.id}">{user.first_name}</a>, Send me a file to get an instant stream link.',
+        message=f'{greeting()} <a href="tg://user?id={user.id}">{user.first_name}</a>, Send me a file to get an instant stream link.',
         link_preview=False,
         parse_mode=html
     )

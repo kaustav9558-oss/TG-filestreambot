@@ -50,8 +50,8 @@ def get_file_info(message: Message) -> FileInfo:
     return FileInfo(
         message.file.size,
         message.file.mime_type,
-        message.date,
         getattr(message.file, "name", None) or "",
+        message.date,
         file.id,
         *get_input_location(media)
     )
