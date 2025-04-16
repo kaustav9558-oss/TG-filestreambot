@@ -7,11 +7,11 @@ import logging
 import logging.handlers as handlers
 
 from aiohttp import web
-from .stream_routes import routes
-from .utils.keepalive import ping_server
-from .utils.util import load_plugins, startup
-from .clients import StreamBot, initialize_clients
-from .vars import Var
+from WebStreamer.stream_routes import routes
+from WebStreamer.utils.keepalive import ping_server
+from WebStreamer.utils.util import load_plugins, startup
+from WebStreamer.clients import StreamBot, initialize_clients
+from WebStreamer.vars import Var
 
 logging.basicConfig(
     level=logging.DEBUG if Var.DEBUG else logging.INFO,

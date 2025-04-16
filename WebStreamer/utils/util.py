@@ -8,7 +8,7 @@ from aiohttp import web
 
 from telethon import TelegramClient
 from telethon.tl import functions
-from ..vars import Var
+from WebStreamer.vars import Var
 
 ongoing_requests: dict[str, int] = defaultdict(lambda: 0)
 

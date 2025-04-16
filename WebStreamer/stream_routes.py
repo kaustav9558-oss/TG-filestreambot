@@ -6,12 +6,12 @@ import logging
 import mimetypes
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
-from .clients import multi_clients, work_loads
-from .utils.file_properties import get_short_hash, pack_file
-from .utils.util import allow_request, get_requester_ip, get_readable_time
-from .vars import Var
-from . import StartTime, __version__
-from .utils.paralleltransfer import ParallelTransferrer
+from WebStreamer.clients import multi_clients, work_loads
+from WebStreamer.utils.file_properties import get_short_hash, pack_file
+from WebStreamer.utils.util import allow_request, get_requester_ip, get_readable_time
+from WebStreamer.vars import Var
+from WebStreamer import StartTime, __version__
+from WebStreamer.utils.paralleltransfer import ParallelTransferrer
 
 
 routes = web.RouteTableDef()

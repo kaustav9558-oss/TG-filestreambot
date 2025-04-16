@@ -5,9 +5,9 @@ import logging
 from telethon import Button, errors
 from telethon.events import NewMessage
 from telethon.extensions import html
-from ..clients import StreamBot
-from ..utils.file_properties import get_file_info, pack_file, get_short_hash
-from ..vars import Var
+from WebStreamer.clients import StreamBot
+from WebStreamer.utils.file_properties import get_file_info, pack_file, get_short_hash
+from WebStreamer.vars import Var
 
 MEDIA={"video", "audio"} # we can expand it to include more media types
 

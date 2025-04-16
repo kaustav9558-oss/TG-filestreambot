@@ -4,7 +4,7 @@ import asyncio
 import logging
 import traceback
 import aiohttp
-from ..vars import Var
+from WebStreamer.vars import Var
 
 
 async def ping_server():

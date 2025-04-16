@@ -3,9 +3,9 @@
 
 from telethon.extensions import html
 from telethon.events import NewMessage
-from .. import __version__
-from ..clients import StreamBot
-from ..vars import Var
+from WebStreamer import __version__
+from WebStreamer.clients import StreamBot
+from WebStreamer.vars import Var
 
 @StreamBot.on(NewMessage(incoming=True,pattern=r"^\/start*", func=lambda e: e.is_private))
 async def start(event: NewMessage.Event):

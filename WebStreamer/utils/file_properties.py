@@ -7,7 +7,7 @@ from telethon import TelegramClient
 from telethon.utils import get_input_location
 from telethon.tl import types
 from telethon.tl.patched import Message
-from ..vars import Var
+from WebStreamer.vars import Var
 
 @dataclass
 class FileInfo:

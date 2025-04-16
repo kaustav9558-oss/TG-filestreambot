@@ -6,8 +6,8 @@ import logging
 from os import environ
 from telethon import TelegramClient
 from telethon.sessions import MemorySession
-from .utils.util import startup
-from .vars import Var
+from WebStreamer.utils.util import startup
+from WebStreamer.vars import Var
 
 multi_clients: dict[int, TelegramClient] = {}
 work_loads: dict[int, int] = {}
