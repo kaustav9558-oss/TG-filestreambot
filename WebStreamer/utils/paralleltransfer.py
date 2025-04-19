@@ -175,30 +175,54 @@ class ParallelTransferrer:
         last_part_cut: int, part_count: int, chunk_size: int,
         last_part: int, total_parts: int, index: int, ip: str) -> AsyncGenerator[bytes, None]:
         log = self.log
+        current_part = 1
         try:
             async with self.lock:
                 work_loads[index] += 1
                 increment_counter(ip)
-            current_part = 1
             dcm = self.dc_managers[dc_id]
             async with dcm.get_connection() as conn:
-                log = conn.log
-                while current_part <= part_count:
-                    result = await conn.sender.send(request)
-                    request.offset += chunk_size
-                    if not result.bytes:
-                        break
-                    elif part_count == 1:
-                        yield result.bytes[first_part_cut:last_part_cut]
-                    elif current_part == 1:
-                        yield result.bytes[first_part_cut:]
-                    elif current_part == part_count:
-                        yield result.bytes[:last_part_cut]
-                    else:
-                        yield result.bytes
-                    log.debug("Part %s/%s (total %s) downloaded",current_part,last_part,total_parts)
-                    current_part += 1
-                log.debug("Parallel download finished")
+                queue = asyncio.Queue(maxsize=Var.CACHE_CHUNK)
+                async def producer():
+                    nonlocal current_part
+                    try:
+                        log = conn.log
+                        while current_part <= part_count:
+                            result = await conn.sender.send(request)
+                            request.offset += chunk_size
+                            if not result.bytes:
+                                break
+                            elif part_count == 1:
+                                await queue.put(result.bytes[first_part_cut:last_part_cut])
+                            elif current_part == 1:
+                                await queue.put(result.bytes[first_part_cut:])
+                            elif current_part == part_count:
+                                await queue.put(result.bytes[:last_part_cut])
+                            else:
+                                await queue.put(result.bytes)
+                            log.debug("Part %s/%s (total %s) downloaded",current_part,last_part,total_parts)
+                            current_part += 1
+                        log.debug("Parallel download finished")
+                    finally:
+                        await queue.put(None)
+
+                task = asyncio.create_task(producer())
+                try:
+                    while True:
+                        item = await queue.get()
+                        if item is None:
+                            break
+                        yield item
+                        del item
+                        queue.task_done()
+                    await task
+                finally:
+                    task.cancel()
+                    try:
+                        await task
+                    except asyncio.CancelledError:
+                        pass
+
         except (GeneratorExit, StopAsyncIteration, asyncio.CancelledError):
             log.debug("Parallel download interrupted")
             raise

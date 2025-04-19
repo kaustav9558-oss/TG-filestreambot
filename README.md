@@ -28,6 +28,8 @@ The main logic was taken from [Tulir Asokan](https://github.com/tulir)'s [tg fil
     > **Note**
     > User IDs in this field take precedence. Even if a user is in ALLOWED_USERS, they will be blocked if they are listed here
 - `CACHE_SIZE` (default: 128) — Maximum number of file info entries cached per client. Each client (including those using MULTI_TOKEN) gets its own separate cache of this size
+- `CACHE_CHUNK` (default: 2) - Number of extra file chunks to pre-download and store in advance.
+Helps improve performance when streaming files by reducing wait time for the next chunks
 - `CHUNK_SIZE`: Size of the chunk to request from Telegram server when streaming a file [See more](https://core.telegram.org/api/files#downloading-files)
 - `CONNECTION_LIMIT`:  (default 20) - The maximum number of connections to a single Telegram datacenter.
 - `FQDN` :  A Fully Qualified Domain Name if present. Defaults to `WEB_SERVER_BIND_ADDRESS`

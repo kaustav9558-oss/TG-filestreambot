@@ -22,6 +22,7 @@ class Var(object):
     BIND_ADDRESS = str(environ.get("WEB_SERVER_BIND_ADDRESS", "0.0.0.0"))
     BLOCKED_USERS = [int(x.strip()) for x in environ.get("BLOCKED_USERS", "").split(",") if x.strip()]
     CACHE_SIZE: int = int(environ.get("CACHE_SIZE", 128))
+    CACHE_CHUNK: int = int(environ.get("CACHE_CHUNK", 2))
     CHUNK_SIZE: int = int(environ.get("CHUNK_SIZE", 1024 * 1024)) #bytes
     CONNECTION_LIMIT = int(environ.get("CONNECTION_LIMIT", 20))
     DEBUG: bool = str(environ.get("DEBUG", "0").lower()) in ("1", "true", "t", "yes", "y")
