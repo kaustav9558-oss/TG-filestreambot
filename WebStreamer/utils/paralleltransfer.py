@@ -171,9 +171,10 @@ class ParallelTransferrer:
     def post_init(self) -> None:
         self.dc_managers[self.client.session.dc_id].auth_key = self.client.session.auth_key
 
-    async def _int_download(self, request: GetFileRequest, dc_id: int,first_part_cut: int,
-        last_part_cut: int, part_count: int, chunk_size: int,
-        last_part: int, total_parts: int, index: int, ip: str) -> AsyncGenerator[bytes, None]:
+    async def _int_download(self, request: GetFileRequest, dc_id: int,
+            first_part_cut: int, last_part_cut: int, part_count: int,
+            chunk_size: int, last_part: int, total_parts: int,
+            index: int, ip: str) -> AsyncGenerator[bytes, None]:
         log = self.log
         current_part = 1
         try:
@@ -182,46 +183,46 @@ class ParallelTransferrer:
                 increment_counter(ip)
             dcm = self.dc_managers[dc_id]
             async with dcm.get_connection() as conn:
-                queue = asyncio.Queue(maxsize=Var.CACHE_CHUNK)
-                async def producer():
-                    nonlocal current_part
-                    try:
-                        log = conn.log
-                        while current_part <= part_count:
-                            result = await conn.sender.send(request)
-                            request.offset += chunk_size
-                            if not result.bytes:
-                                break
-                            elif part_count == 1:
-                                await queue.put(result.bytes[first_part_cut:last_part_cut])
-                            elif current_part == 1:
-                                await queue.put(result.bytes[first_part_cut:])
-                            elif current_part == part_count:
-                                await queue.put(result.bytes[:last_part_cut])
-                            else:
-                                await queue.put(result.bytes)
-                            log.debug("Part %s/%s (total %s) downloaded",current_part,last_part,total_parts)
-                            current_part += 1
-                        log.debug("Parallel download finished")
-                    finally:
-                        await queue.put(None)
-
-                task = asyncio.create_task(producer())
-                try:
-                    while True:
-                        item = await queue.get()
-                        if item is None:
+                log = conn.log
+                async def fetch(part_no: int, offset: int) -> tuple[int, bytes]:
+                    req = GetFileRequest(
+                        location=request.location,
+                        offset=offset,
+                        limit=chunk_size
+                    )
+                    result = await conn.sender.send(req)
+                    return part_no, result.bytes
+                while current_part <= part_count:
+                    batch = []
+                    for i in range(Var.CACHE_CHUNK):
+                        part_no = current_part + i
+                        if part_no > part_count:
                             break
-                        yield item
-                        del item
-                        queue.task_done()
-                    await task
-                finally:
-                    task.cancel()
-                    try:
-                        await task
-                    except asyncio.CancelledError:
-                        pass
+                        offset = request.offset + (i * chunk_size)
+                        batch.append(fetch(part_no, offset))
+
+                    results = await asyncio.gather(*batch)
+                    results.sort()  # sort by part_no to keep order
+
+                    for part_no, data in results:
+                        if not data:
+                            break
+                        if part_count == 1:
+                            yield data[first_part_cut:last_part_cut]
+                        elif part_no == 1:
+                            yield data[first_part_cut:]
+                        elif part_no == part_count:
+                            yield data[:last_part_cut]
+                        else:
+                            yield data
+
+                        log.debug("Part %s/%s (total %s) downloaded", part_no, last_part, total_parts)
+                        del data, part_no
+
+                    current_part += len(results)
+                    request.offset += chunk_size * len(results)
+
+                log.debug("Parallel download finished")
 
         except (GeneratorExit, StopAsyncIteration, asyncio.CancelledError):
             log.debug("Parallel download interrupted")
