@@ -182,9 +182,8 @@ class ParallelTransferrer:
                 work_loads[index] += 1
                 increment_counter(ip)
             dcm = self.dc_managers[dc_id]
-            async with dcm.get_connection() as conn:
-                log = conn.log
-                async def fetch(part_no: int, offset: int) -> tuple[int, bytes]:
+            async def fetch(part_no: int, offset: int) -> tuple[int, bytes]:
+                async with dcm.get_connection() as conn:
                     req = GetFileRequest(
                         location=request.location,
                         offset=offset,
@@ -192,35 +191,35 @@ class ParallelTransferrer:
                     )
                     result = await conn.sender.send(req)
                     return part_no, result.bytes
-                while current_part <= part_count:
-                    batch = []
-                    for i in range(Var.CACHE_CHUNK):
-                        part_no = current_part + i
-                        if part_no > part_count:
-                            break
-                        offset = request.offset + (i * chunk_size)
-                        batch.append(fetch(part_no, offset))
+            while current_part <= part_count:
+                batch = []
+                for i in range(Var.CACHE_CHUNK):
+                    part_no = current_part + i
+                    if part_no > part_count:
+                        break
+                    offset = request.offset + (i * chunk_size)
+                    batch.append(fetch(part_no, offset))
 
-                    results = await asyncio.gather(*batch)
-                    results.sort()  # sort by part_no to keep order
+                results = await asyncio.gather(*batch)
+                results.sort()  # sort by part_no to keep order
 
-                    for part_no, data in results:
-                        if not data:
-                            break
-                        if part_count == 1:
-                            yield data[first_part_cut:last_part_cut]
-                        elif part_no == 1:
-                            yield data[first_part_cut:]
-                        elif part_no == part_count:
-                            yield data[:last_part_cut]
-                        else:
-                            yield data
+                for part_no, data in results:
+                    if not data:
+                        break
+                    if part_count == 1:
+                        yield data[first_part_cut:last_part_cut]
+                    elif part_no == 1:
+                        yield data[first_part_cut:]
+                    elif part_no == part_count:
+                        yield data[:last_part_cut]
+                    else:
+                        yield data
 
-                        log.debug("Part %s/%s (total %s) downloaded", part_no, last_part, total_parts)
-                        del data, part_no
+                    log.debug("Part %s/%s (total %s) downloaded", part_no, last_part, total_parts)
+                    del data, part_no
 
-                    current_part += len(results)
-                    request.offset += chunk_size * len(results)
+                current_part += len(results)
+                request.offset += chunk_size * len(results)
 
                 log.debug("Parallel download finished")
 
