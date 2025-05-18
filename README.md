@@ -1,10 +1,8 @@
 # Telegram File Stream Bot
 This bot will give you stream links for Telegram files without waiting for them to download.
 
-~~[Demo Bot](https://telegram.dog/DirectLinkGenerator_Bot) based on this repo~~
-
 ### Original Repository
-[TG-FileStreamBot](https://github.com/SpringsFern/TG-FileStreamBot) is a modified version of [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot) by [EverythingSuckz](https://github.com/EverythingSuckz)
+[TG-FileStreamBot](https://github.com/DeekshithSH/TG-FileStreamBot) is a modified version of [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot) by [EverythingSuckz](https://github.com/EverythingSuckz)
 
 The main logic was taken from [Tulir Asokan](https://github.com/tulir)'s [tg filestream](https://github.com/tulir/TGFileStream) project.
 
@@ -80,8 +78,8 @@ Join the [Telegram Group](https://xn--r1a.click/AWeirdString) or [Channel](https
 ## Credits
 
 - [Me](https://github.com/DeekshithSH)
-- [EverythingSuckz](https://github.com/EverythingSuckz) for his [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot)
-- [Tulir Asokan](https://github.com/tulir) for his [tg filestream](bit.ly/tg-stream)
-- [eyaadh](https://github.com/eyaadh) for his awesome [Megatron Bot](https://github.com/eyaadh/megadlbot_oss).
-- [BlackStone](https://github.com/eyMarv) for adding multi-client support.
 - [Lonami](https://github.com/Lonami) for his [Telethon Library](https://github.com/LonamiWebs/Telethon)
+- [Tulir Asokan](https://github.com/tulir) for his [tg filestream](bit.ly/tg-stream)
+- [EverythingSuckz](https://github.com/EverythingSuckz) for his [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot)
+- [BlackStone](https://github.com/eyMarv) for adding multi-client support.
+- [eyaadh](https://github.com/eyaadh) for his awesome [Megatron Bot](https://github.com/eyaadh/megadlbot_oss).

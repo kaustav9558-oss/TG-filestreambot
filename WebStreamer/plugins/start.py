@@ -28,7 +28,7 @@ async def about(event: NewMessage.Event):
     await event.message.reply(
         message=f"""
 Maintained By: <a href="https://github.com/DeekshithSH">DeekshithSH</a>
-Source Code: <a href="https://github.com/SpringsFern/TG-FileStreamBot">TG-FileStreamBot</a>
+Source Code: <a href="https://github.com/DeekshithSH/TG-FileStreamBot">TG-FileStreamBot</a>
 Based On: [<a href="https://github.com/tulir/TGFileStream/">tg filestream</a>] [<a href="https://github.com/EverythingSuckz/TG-FileStreamBot">TG-FileStreamBot</a>]
 Version: {__version__}
 Last Updated: 08 April 2025

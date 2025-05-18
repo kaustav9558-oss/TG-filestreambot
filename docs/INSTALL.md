@@ -9,7 +9,7 @@ Then go to the [variables tab](/README.md#environment-variables) for info on set
 ### 🖥 Host on VPS / Locally
 
 ```sh
-git clone https://github.com/SpringsFern/TG-FileStreamBot
+git clone https://github.com/DeekshithSH/TG-FileStreamBot
 cd TG-FileStreamBot
 python3 -m venv ./venv
 . ./venv/bin/activate
