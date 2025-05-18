@@ -2,10 +2,9 @@
 <p>
   <p>
     A Telegram bot to stream files to web<br/>
-    <a href="https://telegram.dog/DirectLinkGenerator_Bot"><strong>Demo Bot (Not Exactly)»</strong></a>
-    <a href="https://github.com/DeekshithSH/FileStreamBot/issues">Report a Bug</a>
+    <a href="https://github.com/DeekshithSH/TG-FileStreamBot/issues">Report a Bug</a>
     |
-    <a href="https://github.com/DeekshithSH/FileStreamBot/issues">Request Feature</a>
+    <a href="https://github.com/DeekshithSH/TG-FileStreamBot/issues">Request Feature</a>
   </p>
 </p>
 
@@ -45,7 +44,7 @@
 </p>
 
 ### Original Repository
-[FileStreamBot](https://github.com/SpringsFern/FileStreamBot) is a Modified Version of [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot) by [EverythingSuckz](https://github.com/EverythingSuckz/)
+[TG-FileStreamBot](https://github.com/DeekshithSH/TG-FileStreamBot) is a Modified Version of [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot) by [EverythingSuckz](https://github.com/EverythingSuckz/)
 
 The main working part was taken from [Megatron](https://github.com/eyaadh/megadlbot_oss) and thanks to [eyaadh](https://github.com/eyaadh) for his awesome project.
 
@@ -64,8 +63,8 @@ then goto the <a href="#mandatory-vars">variables tab</a> for more info on setti
 ### Host it on VPS or Locally
 
 ```sh
-git clone https://github.com/DeekshithSH/FileStreamBot
-cd FileStreamBot
+git clone -b main https://github.com/DeekshithSH/TG-FileStreamBot
+cd TG-FileStreamBot
 python3 -m venv ./venv
 . ./venv/bin/activate
 pip3 install -r requirements.txt
@@ -197,11 +196,9 @@ You can contact via my [Telegram Group](https://xn--r1a.click/AWeirdString)
 ## Credits
 
 - [Me](https://xn--r1a.click/DeekshithSH)
+- [Dan Tès](https://telegram.dog/haskell) for his [Pyrogram Library](https://github.com/pyrogram/pyrogram)
+- [KurimuzonAkuma](https://github.com/KurimuzonAkuma) for his [Updated Pyrogram Library](https://github.com/KurimuzonAkuma/pyrogram)
 - [EverythingSuckz](https://github.com/EverythingSuckz) for his [TG-FileStreamBot](https://github.com/EverythingSuckz/TG-FileStreamBot)
 - [Avishkar Patil](https://github.com/avipatilpro) for his [FileStreamBot](https://github.com/avipatilpro/FileStreamBot)
 - [eyaadh](https://github.com/eyaadh) for his awesome [Megatron Bot](https://github.com/eyaadh/megadlbot_oss).
 - [BlackStone](https://github.com/eyMarv) for adding multi-client support.
-- [Dan Tès](https://telegram.dog/haskell) for his [Pyrogram Library](https://github.com/pyrogram/pyrogram)
-- [TheHamkerCat](https://github.com/TheHamkerCat) for helping me with my common doubts.
-- [KurimuzonAkuma](https://github.com/KurimuzonAkuma) for his [Updated Pyrogram Library](https://github.com/KurimuzonAkuma/pyrogram)
-

@@ -1,4 +1,4 @@
-# This file is a part of FileStreamBot
+# This file is a part of TG-FileStreamBot
 
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from WebStreamer.vars import Var
@@ -27,10 +27,10 @@ class Language:
 
         ABOUT_TEXT: str = """
 Maintained By: <a href="https://github.com/DeekshithSH">DeekshithSH</a>
-Source Code: <a href="https://github.com/SpringsFern/TG-FileStreamBot">TG-FileStreamBot</a>
-Based On: [<a href="bit.ly/tg-stream">tg filestream</a>] [<a href="https://github.com/EverythingSuckz/TG-FileStreamBot">TG-FileStreamBot</a>]
+Source Code: <a href="https://github.com/DeekshithSH/TG-FileStreamBot/tree/main">TG-FileStreamBot</a>
+Based On: [<a href="https://github.com/EverythingSuckz/TG-FileStreamBot">TG-FileStreamBot</a>]
 Version: {}
-Last Updated: 23 March 20225
+Last Updated: 23 March 2025
 """
 
         STREAM_MSG_TEXT: str = """
@@ -75,10 +75,10 @@ Links Left: <code>{}</code>"""
 
         ABOUT_TEXT: str = """
 Maintained By: <a href="https://github.com/DeekshithSH">DeekshithSH</a>
-Source Code: <a href="https://github.com/SpringsFern/TG-FileStreamBot">TG-FileStreamBot</a>
-Based On: [<a href="bit.ly/tg-stream">tg filestream</a>] [<a href="https://github.com/EverythingSuckz/TG-FileStreamBot">TG-FileStreamBot</a>]
+Source Code: <a href="https://github.com/DeekshithSH/TG-FileStreamBot/tree/main">TG-FileStreamBot</a>
+Based On: [<a href="https://github.com/EverythingSuckz/TG-FileStreamBot">TG-FileStreamBot</a>]
 Version: {}
-Last Updated: 23 March 20225
+Last Updated: 23 March 2025
 """
 
         STREAM_MSG_TEXT: str = """

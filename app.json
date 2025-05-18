@@ -11,9 +11,9 @@
         "modular",
         "media"
       ],
-    "repository": "https://github.com/SpringsFern/FileStreamBot",
+    "repository": "https://github.com/DeekshithSH/TG-FileStreamBot",
     "success_url": "/",
-    "website": "https://github.com/SpringsFern/FileStreamBot",
+    "website": "https://github.com/DeekshithSH/TG-FileStreamBot/tree/main",
     "env": {
         "ENV": {
             "description": "Set this to True if you don't want to crash the bot",

@@ -1,4 +1,4 @@
-# This file is a part of FileStreamBot
+# This file is a part of TG-FileStreamBot
 from urllib import request
 from os import environ
 from dotenv import load_dotenv
