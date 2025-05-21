@@ -1,3 +1,7 @@
+> ⚠️ **NOTICE**  
+> This repository has been **rewritten from scratch** and is now maintained at a new location:  
+> 👉 [https://github.com/DeekshithSH/tg-filestream](https://github.com/DeekshithSH/tg-filestream)
+
 <h1>Telegram File Stream Bot</h3>
 <p>
   <p>
